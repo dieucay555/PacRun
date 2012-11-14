@@ -77,7 +77,8 @@ public class GameActivity extends MapActivity implements LocationService.Locatio
 	        GeoPoint gPoint = new GeoPoint((int)(l.getLatitude()*1E6), (int)(l.getLongitude()*1E6));
 	        mapv.getProjection().toPixels(gPoint, p);
 	        
-	        canvas.rotate((float)mLocationService.getAzimuth());
+	        float azimuth = (float)mLocationService.getAzimuth();
+	        canvas.rotate(azimuth);
 	        mDrawable.setBounds(new Rect(p.x - 20, p.y-20, p.x+20, p.y+20));
 	        mDrawable.draw(canvas);
 		}
