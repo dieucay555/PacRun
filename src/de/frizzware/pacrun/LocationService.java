@@ -7,13 +7,17 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
 
-public class LocationService implements LocationListener {
+public class LocationService implements LocationListener, SensorEventListener {
 	private Context mContext;
 	private LocationManager mLocationMgr;
 	private  ArrayList<Location> mLocations = new ArrayList<Location>();
@@ -25,14 +29,11 @@ public class LocationService implements LocationListener {
 	private double distance = 0;
 	private Date startDate;
 	private boolean running = false;
-	
-    // flag for network status
-    boolean isNetworkEnabled = false;
     // flag for GPS status
     boolean isGPSEnabled = false;
 	
 	 // The minimum distance to change Updates in meters
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
+    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 5; // 10 meters
     // The minimum time between updates in milliseconds
     private static final long MIN_TIME_BW_UPDATES = 1000 * 5; // 5 seconds
 	
@@ -52,30 +53,54 @@ public class LocationService implements LocationListener {
 		if (mHandler != null)
 			mHandler.onLocationChanged(location);
 	}
+	public void onProviderDisabled(String provider) {}
+	public void onProviderEnabled(String provider) {}
+	public void onStatusChanged(String provider, int status, Bundle extras) {}
+	
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
-	public void onProviderDisabled(String provider) {
-		// TODO Auto-generated method stub
-		
-	}
+	float[] inR = new float[16];
+	float[] I = new float[16];
+	float[] gravity = new float[3];
+	float[] geomag = new float[3];
+	float[] orientVals = new float[3];
+	double azimuth = 0;
+	double pitch = 0;
+	double roll = 0;
+	public void onSensorChanged(SensorEvent sensorEvent) {
+	    // If the sensor data is unreliable return
+	    if (sensorEvent.accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE)
+	        return;
 
-	public void onProviderEnabled(String provider) {
-		// TODO Auto-generated method stub
-		
-	}
+	    // Gets the value of the sensor that has been changed
+	    switch (sensorEvent.sensor.getType()) {  
+	        case Sensor.TYPE_ACCELEROMETER:
+	            gravity = sensorEvent.values.clone();
+	            break;
+	        case Sensor.TYPE_MAGNETIC_FIELD:
+	            geomag = sensorEvent.values.clone();
+	            break;
+	    }
 
-	public void onStatusChanged(String provider, int status, Bundle extras) {
-		// TODO Auto-generated method stub
-		
+	    // If gravity and geomag have values then find rotation matrix
+	    if (gravity != null && geomag != null) {
+
+	        // checks that the rotation matrix is found
+	        boolean success = SensorManager.getRotationMatrix(inR, I,
+	                                                          gravity, geomag);
+	        if (success) {
+	            SensorManager.getOrientation(inR, orientVals);
+	            azimuth = Math.toDegrees(orientVals[0]);
+	            pitch = Math.toDegrees(orientVals[1]);
+	            roll = Math.toDegrees(orientVals[2]);
+	        }
+	    }
 	}
 	
 	public void start() {
         // getting GPS status
-		isGPSEnabled = mLocationMgr
-                .isProviderEnabled(LocationManager.GPS_PROVIDER);
-        // getting network status
-        isNetworkEnabled = mLocationMgr
-                .isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-		
+		isGPSEnabled = mLocationMgr.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
 		if (isGPSEnabled) {
 			running = true;
 			startDate = new Date();
@@ -84,6 +109,14 @@ public class LocationService implements LocationListener {
                 MIN_TIME_BW_UPDATES,
                 MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
 			this.onLocationChanged(mLocationMgr.getLastKnownLocation(LocationManager.GPS_PROVIDER));
+			
+			SensorManager sm = (SensorManager)mContext.getSystemService(Context.SENSOR_SERVICE);
+			// Register this class as a listener for the accelerometer sensor
+			sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+			                    SensorManager.SENSOR_DELAY_NORMAL);
+			// ...and the orientation sensor
+			sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
+			                    SensorManager.SENSOR_DELAY_NORMAL);
 		} else {
 			showSettingsAlert();
 		}
@@ -106,6 +139,10 @@ public class LocationService implements LocationListener {
 			}
 		}
 		return -1;
+	}
+	
+	public double getAzimuth() {
+		return azimuth;
 	}
 	
 	public ArrayList<Location> getLocations() {
