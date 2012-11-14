@@ -108,6 +108,10 @@ public class LocationService implements LocationListener {
 		return -1;
 	}
 	
+	public ArrayList<Location> getLocations() {
+		return mLocations;
+	}
+	
 	public Location getCurrentLocation() {
 		if (!mLocations.isEmpty())
 			return mLocations.get(mLocations.size()-1);
