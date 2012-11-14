@@ -28,7 +28,7 @@ public class LocationService implements LocationListener {
     // flag for network status
     boolean isNetworkEnabled = false;
     // flag for GPS status
-    boolean canGetLocation = false;
+    boolean isGPSEnabled = false;
 	
 	 // The minimum distance to change Updates in meters
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
@@ -67,13 +67,13 @@ public class LocationService implements LocationListener {
 	
 	public void start() {
         // getting GPS status
-		canGetLocation = mLocationMgr
+		isGPSEnabled = mLocationMgr
                 .isProviderEnabled(LocationManager.GPS_PROVIDER);
         // getting network status
         isNetworkEnabled = mLocationMgr
                 .isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 		
-		if (canGetLocation) {
+		if (isGPSEnabled) {
 			running = true;
 			startDate = new Date();
 			mLocationMgr.requestLocationUpdates(
