@@ -38,7 +38,7 @@ public class LocationService implements LocationListener {
 	
 	public LocationService(Context ctx, LocationHandler handler) {
 		mContext = ctx;
-		
+		mHandler = handler;
 		mLocationMgr = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
 		
 	}
@@ -83,6 +83,7 @@ public class LocationService implements LocationListener {
                 LocationManager.GPS_PROVIDER,
                 MIN_TIME_BW_UPDATES,
                 MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+			this.onLocationChanged(mLocationMgr.getLastKnownLocation(LocationManager.GPS_PROVIDER));
 		} else {
 			showSettingsAlert();
 		}

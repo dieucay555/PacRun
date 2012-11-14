@@ -16,7 +16,7 @@ public class GameActivity extends MapActivity implements LocationService.Locatio
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        setContentView(R.layout.game);
         
         mLocationService = new LocationService(this, this);
         mLocationService.start();
@@ -36,5 +36,6 @@ public class GameActivity extends MapActivity implements LocationService.Locatio
 		Location l = mLocationService.getCurrentLocation();
         GeoPoint point = new GeoPoint((int)(l.getLatitude()*1E6), (int)(l.getLongitude()*1E6));
         mMap.getController().animateTo(point);
+        mMap.getController().setZoom(19);
 	}
 }
