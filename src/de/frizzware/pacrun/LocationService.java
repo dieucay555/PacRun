@@ -17,6 +17,7 @@ public class LocationService implements LocationListener {
 	private Context mContext;
 	private LocationManager mLocationMgr;
 	private  ArrayList<Location> mLocations = new ArrayList<Location>();
+	private LocationHandler mHandler;
 	
 	/**
 	 * Overall distance
@@ -35,7 +36,7 @@ public class LocationService implements LocationListener {
     // The minimum time between updates in milliseconds
     private static final long MIN_TIME_BW_UPDATES = 1000 * 30; // 1 minute
 	
-	public LocationService(Context ctx) {
+	public LocationService(Context ctx, LocationHandler handler) {
 		mContext = ctx;
 		
 		mLocationMgr = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
@@ -48,6 +49,8 @@ public class LocationService implements LocationListener {
 			Location last = mLocations.get(mLocations.size() - 2);
 			distance += last.distanceTo(location);
 		}
+		if (mHandler != null)
+			mHandler.onLocationChanged(location);
 	}
 
 	public void onProviderDisabled(String provider) {
@@ -104,6 +107,12 @@ public class LocationService implements LocationListener {
 		return -1;
 	}
 	
+	public Location getCurrentLocation() {
+		if (!mLocations.isEmpty())
+			return mLocations.get(mLocations.size()-1);
+		return null;
+	}
+	
 	/**
 	 * 
 	 * @return
@@ -156,4 +165,7 @@ public class LocationService implements LocationListener {
         alertDialog.show();
     }
     
+    interface LocationHandler {
+    	public void onLocationChanged(Location location);
+    }
 }
