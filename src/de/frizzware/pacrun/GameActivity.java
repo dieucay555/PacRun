@@ -45,10 +45,11 @@ public class GameActivity extends MapActivity implements LocationService.UpdateH
         
         Bitmap pacman = BitmapFactory.decodeResource( getResources(), R.drawable.pacman);
         mPacmanOverlay = new UserLocationOverlay(this, mMap, pacman);
-        
         mapOverlays.add(mPacmanOverlay);
+        
         //mMap.getOverlays().add(mWayOverlay);
-        mMManager = new MonsterManager(getResources().getDrawable(R.drawable.pacman), mLocationService);
+        mMManager = new MonsterManager(getResources().getDrawable(R.drawable.clyde), mLocationService);
+        mapOverlays.add(mMManager);
 	}
 	
 	@Override
@@ -80,14 +81,14 @@ public class GameActivity extends MapActivity implements LocationService.UpdateH
 	public void onChange() {
 		Location l = mLocationService.getCurrentLocation();
 		if (l != null) {
-			//mMManager.generateMonsters();
+			mMManager.generateMonsters();
 			
 	        GeoPoint point = new GeoPoint((int)(l.getLatitude()*1E6), (int)(l.getLongitude()*1E6));
 	        MapController controller = mMap.getController();
 	        controller.animateTo(point);
 	        
 	        mPacmanOverlay.setOrientation((float)mLocationService.getAzimuth());
-	        //mMap.postInvalidate();
+	        mMap.postInvalidate();
 		}
 	}
 	

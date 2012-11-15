@@ -5,6 +5,7 @@ import java.util.Random;
 
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.media.MediaPlayer;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
@@ -14,6 +15,7 @@ public class MonsterManager extends ItemizedOverlay<OverlayItem> {
 	private final LocationService mLocationService;
 	private ArrayList<OverlayItem> mapOverlays = new ArrayList<OverlayItem>();
 	private Random rand = new Random();
+	private MediaPlayer mPlayer;
 	
 	public MonsterManager(Drawable drawable, LocationService locationSevice) {
 		super(drawable);		
@@ -21,6 +23,9 @@ public class MonsterManager extends ItemizedOverlay<OverlayItem> {
 	}
 	
 	public void generateMonsters() {
+		if (!mapOverlays.isEmpty())
+			return;
+		
 		for (int i = 1; i <= 3; i++) {
 			OverlayItem overlayitem = new OverlayItem(randomPoint(), "Monster " + i, "A Monster");
 			addOverlay(overlayitem);
