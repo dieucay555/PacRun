@@ -29,6 +29,7 @@ public class MainActivity extends Activity {
 	
 	//MediaPlayer
 	MediaPlayer welcomeSound;
+	MediaPlayer eatingSound;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -50,6 +51,7 @@ public class MainActivity extends Activity {
     	
     	//MediaPlayer erstellen
     	welcomeSound = MediaPlayer.create(this, R.raw.opening_sounds);
+    	eatingSound = MediaPlayer.create(this, R.raw.wakawaka);
     	
     	dot1 = (ImageView) findViewById(R.id.dot1);
     	dot2 = (ImageView) findViewById(R.id.dot2);
@@ -86,6 +88,7 @@ public class MainActivity extends Activity {
 			
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
+				eatingSound.start();
 				ivTitlePac.startAnimation(leftRightOut);
 				dot1.startAnimation(fadeOUT);
 				dot2.startAnimation(fadeOUT);
