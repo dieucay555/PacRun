@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -34,6 +35,29 @@ public class GameActivity extends MapActivity implements LocationService.UpdateH
 	UserLocationOverlay mPacmanOverlay;
 	MonsterManager mMManager;
 	Timer timer = new Timer();
+	TimerTask updater = new TimerTask() {
+    	boolean first = true;
+		@Override
+		public void run() {
+			Location l = mLocationService.getCurrentLocation();
+			
+			if (first && l != null) {
+				mMManager.init(l);
+				first = false;
+			} else if (l != null){
+				if (mMManager.moveMonsters(l, mLocationService.getAverageSpeed()))
+					mMap.postInvalidate();
+				else {
+					GameActivity.this.runOnUiThread(new Runnable() {
+						public void run() {
+							startActivity(new Intent(GameActivity.this, GameOverActivity.class));
+						}
+					});
+					updater.cancel();
+				}
+			}
+		}
+	};
 
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -50,7 +74,7 @@ public class GameActivity extends MapActivity implements LocationService.UpdateH
         List<Overlay> mapOverlays = mMap.getOverlays();
         
         Bitmap pacman = BitmapFactory.decodeResource( getResources(), R.drawable.pacman);
-        mPacmanOverlay = new UserLocationOverlay(this, mMap, pacman);
+        mPacmanOverlay = new UserLocationOverlay(pacman);
         mapOverlays.add(mPacmanOverlay);
         
         Drawable d = getResources().getDrawable(R.drawable.clyde);
@@ -71,62 +95,37 @@ public class GameActivity extends MapActivity implements LocationService.UpdateH
 		return true;
 	}
 	
-	TimerTask updater = new TimerTask() {
-    	boolean first = true;
-		@Override
-		public void run() {
-			GeoPoint p = mPacmanOverlay.getMyLocation();
-			
-			if (first && p != null) {
-				mMManager.init(p);
-				first = false;
-			} else if (p != null){
-				if (mMManager.moveMonsters(p, mLocationService.getAverageSpeed()))
-					mMap.postInvalidate();
-				else {
-					GameActivity.this.runOnUiThread(new Runnable() {
-						public void run() {
-							Toast.makeText(GameActivity.this, "Game over", Toast.LENGTH_LONG).show();
-						}
-					});
-					updater.cancel();
-				}
-			}
-		}
-	};
-	
 	@Override
 	protected void onResume() {
 		super.onResume();
-		
 		mLocationService.start();
-        mPacmanOverlay.enableCompass();
-        mPacmanOverlay.enableMyLocation();
-        
-        timer.scheduleAtFixedRate(updater, 1000, 500);	
+        timer.scheduleAtFixedRate(updater, 1000, 1500);	
 	}
 	
 	@Override
 	protected void onPause() {
 		super.onPause();
 		mLocationService.stop();
-		mPacmanOverlay.disableCompass();
-		mPacmanOverlay.disableMyLocation();
-		
 		updater.cancel();
+	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		mMManager.destroy();
+		timer.purge();
 	}
 
 	public void onChange() {
 		Location l = mLocationService.getCurrentLocation();
 		if (l != null) {
-			
-			
 	        GeoPoint point = new GeoPoint((int)(l.getLatitude()*1E6), (int)(l.getLongitude()*1E6));
 	        MapController controller = mMap.getController();
 	        controller.animateTo(point);
 	        
-	        //mPacmanOverlay.setOrientation((float)mLocationService.getAzimuth());
-	        //mMap.postInvalidate();
+	        mPacmanOverlay.setGeoPoint(point);
+	        mPacmanOverlay.setOrientation((float)mLocationService.getAzimuth());
+	        mMap.postInvalidate();
 		}
 	}
 	

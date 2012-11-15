@@ -42,6 +42,13 @@ public class MainActivity extends Activity {
         welcomeSound.start();
     }
     
+    @Override
+    protected void onDestroy() {
+    	super.onDestroy();
+    	welcomeSound.release();
+    	eatingSound.release();
+    }
+    
     //Inizialisiert alle GUI-Elemente
     private void initGUI(){
     	//Animationen lesen

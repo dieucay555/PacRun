@@ -9,6 +9,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.media.MediaPlayer;
+import android.os.PowerManager.WakeLock;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
@@ -18,6 +19,7 @@ import com.google.android.maps.Projection;
 public class MonsterManager {
 	private MediaPlayer mPlayerDies;
 	private MediaPlayer mEatingGhost;
+	private MediaPlayer mWakawaka;
 	private ArrayList<Monster> monsters = new ArrayList<Monster>();
 	private Context mContext;
 	
@@ -27,6 +29,13 @@ public class MonsterManager {
 		
 		mPlayerDies = MediaPlayer.create(mContext, R.raw.pacman_dies);
 		mEatingGhost = MediaPlayer.create(mContext, R.raw.eating_ghost);
+		mWakawaka = MediaPlayer.create(mContext, R.raw.wakawaka);
+	}
+	
+	public void destroy() {
+		mPlayerDies.release();
+		mEatingGhost.release();
+		mWakawaka.release();
 	}
 	
 	private void generateMonsters() {		
@@ -47,22 +56,22 @@ public class MonsterManager {
 		return monsters;
 	}
 	
-	private void groupAround(GeoPoint current, Monster m, int i) {
-		int lat = current.getLatitudeE6() + (int)Math.sin(Math.PI/2*i + 0.1)*1000 + 1000;
-		int log = current.getLongitudeE6() + (int)Math.cos(Math.PI/2*i + 0.1)*4000 + 2000;
+	private void groupAround(Location current, Monster m, int i) {
+		int lat = (int) (current.getLatitude()*1E6 + 500 + Math.sin(Math.PI/4*i)*1000);
+		int log = (int) (current.getLongitude()*1E6 + 500 + Math.cos(Math.PI/4*i)*1000);
 		m.setGeoPoint(new GeoPoint(lat, log));
 	}
 	
 	private void stepTowards(Location current, Monster m, double speed) {
+		GeoPoint p = m.getGeoPoint();
 		
-		
-		int lat = (int) (current.getLatitudeE6() + Math.signum(current.getLatitudeE6() - m.getGeoPoint().getLatitudeE6() + 1));
-		int log = (int) (current.getLongitudeE6() + Math.signum(current.getLongitudeE6() - m.getGeoPoint().getLongitudeE6() + 1));
+		int lat = (int) (p.getLatitudeE6() + 40*Math.signum(current.getLatitude()*1E6 - p.getLatitudeE6()));
+		int log = (int) (p.getLongitudeE6() + 40*Math.signum(current.getLongitude()*1E6 - p.getLongitudeE6()));
 		m.setGeoPoint(new GeoPoint(lat, log));
 	}
 	
 	
-	public void init(GeoPoint current) {
+	public void init(Location current) {
 		for (int i = 0; i < monsters.size(); i++) {
 			Monster m = monsters.get(i);
 			groupAround(current, m, i);
@@ -72,18 +81,19 @@ public class MonsterManager {
 	public boolean moveMonsters(Location current, double speed) {
 		int i = 0;
 		for(Monster m : monsters) {
-			if(m.distanceTo(current) >= 300.) {
+			if(m.distanceTo(current) >= 200.) {
 				mEatingGhost.start();
 				groupAround(current, m, i);
 			} else {
 				stepTowards(current, m, speed);
-				if(m.distanceTo(current) <= 1) {
+				if(m.distanceTo(current) <= 10) {
 					mPlayerDies.start();
 					return false;
 				}
 			}
 			i++;
 		}
+		mWakawaka.start();
 		return true;
 	}
 	
@@ -114,10 +124,10 @@ public class MonsterManager {
 			return mGeoPoint;
 		}
 		
-		public float distanceTo(GeoPoint point) {
+		public float distanceTo(Location point) {
 			float results[] = new float[3];
 			Location.distanceBetween(mGeoPoint.getLatitudeE6()/1E6, mGeoPoint.getLongitudeE6()/1E6,
-					point.getLatitudeE6()/1E6, point.getLongitudeE6()/1E6, results);
+					point.getLatitude(), point.getLongitude(), results);
 			return results[0];
 		}
 	}

@@ -17,7 +17,7 @@ public class GameOverActivity extends Activity {
         tmp.setOnClickListener(new OnClickListener() {
 			
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
+				
 				finish();
 			}
 		});
