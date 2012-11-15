@@ -18,13 +18,15 @@ import com.google.android.maps.Overlay;
 import com.google.android.maps.Projection;
 
 public class MonsterManager {
-	private MediaPlayer mPlayer;
+	private MediaPlayer mPlayerDies;
 	private ArrayList<Monster> monsters = new ArrayList<Monster>();
 	private Context mContext;
 	
 	public MonsterManager(Context ctx) {
 		mContext = ctx;
 		generateMonsters();
+		
+		mPlayerDies = MediaPlayer.create(mContext, R.raw.pacman_dies);
 	}
 	
 	private void generateMonsters() {		
@@ -59,6 +61,8 @@ public class MonsterManager {
 		for(Monster m : monsters) {
 			if(m.distanceTo(current) > 50.) {
 				groupAround(current, m, i);
+				mPlayerDies.seekTo(0);
+				//mPlayerDies.start();
 			} else {
 				
 			}
