@@ -22,6 +22,9 @@ public class UserLocationOverlay extends Overlay {
 	public void draw(Canvas canvas, MapView mapView, boolean shadow) {
 		super.draw(canvas, mapView, shadow);
 
+		if (mGeoPoint == null || shadow)
+			return;
+		
 		// translate the GeoPoint to screen pixels
 		Point screenPts = mapView.getProjection().toPixels(mGeoPoint, null);
 
