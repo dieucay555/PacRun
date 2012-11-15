@@ -35,8 +35,6 @@ public class LocationService implements LocationListener, SensorEventListener {
     // flag for network status
     boolean isNetworkEnabled = false;
 	
-	 // The minimum distance to change Updates in meters
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 5; // 10 meters
     // The minimum time between updates in milliseconds
     private static final long MIN_TIME_BW_UPDATES = 1000 * 60; // 5 seconds
 	
@@ -183,7 +181,6 @@ public class LocationService implements LocationListener, SensorEventListener {
 		return getDistance()/getDuration();
 	}
 	
-	private static final int TWO_MINUTES = 1000 * 60 * 2;
 	/** Determines whether one Location reading is better than the current Location fix
 	  * @param location  The new Location that you want to evaluate
 	  * @param currentBestLocation  The current Location fix, to which you want to compare the new one

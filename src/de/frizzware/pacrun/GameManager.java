@@ -21,7 +21,6 @@ public class GameManager {
 	private MediaPlayer mWakawaka;
 	private ArrayList<GameObj> monsters = new ArrayList<GameObj>();
 	private GameActivity mGameActivity;
-	private int lifes = 3;
 	private int points = 0;
 	private ArrayList<GameObj> stuff = new ArrayList<GameManager.GameObj>();
 	

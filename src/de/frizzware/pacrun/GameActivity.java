@@ -68,7 +68,7 @@ public class GameActivity extends MapActivity implements LocationService.UpdateH
         // Displaying Zooming controls
         mMap = (MapView) findViewById(R.id.mapview);
         mMap.setBuiltInZoomControls(false);
-        mMap.setStreetView(true); // Street View
+        //mMap.setStreetView(true); // Street View
         mMap.getController().setZoom(19);
       
         List<Overlay> mapOverlays = mMap.getOverlays();
