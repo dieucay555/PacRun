@@ -78,6 +78,7 @@ public class GameActivity extends MapActivity implements LocationService.UpdateH
         mapOverlays.add(mPacmanOverlay);
 		
 		mMManager = new GameManager(this);
+		timer.scheduleAtFixedRate(updater, 1000, 1500);	
 	}
 	
 	@Override
@@ -94,20 +95,19 @@ public class GameActivity extends MapActivity implements LocationService.UpdateH
 	protected void onResume() {
 		super.onResume();
 		mLocationService.start();
-        timer.scheduleAtFixedRate(updater, 1000, 1500);	
 	}
 	
 	@Override
 	protected void onPause() {
 		super.onPause();
 		mLocationService.stop();
-		updater.cancel();
 	}
 	
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 		mMManager.destroy();
+		updater.cancel();
 		timer.purge();
 	}
 
