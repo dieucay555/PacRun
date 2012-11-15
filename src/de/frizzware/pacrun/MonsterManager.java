@@ -48,14 +48,16 @@ public class MonsterManager {
 	}
 	
 	private void groupAround(GeoPoint current, Monster m, int i) {
-		int lat = current.getLatitudeE6() + (int)Math.sin(Math.PI/2*i)*1000;
-		int log = current.getLongitudeE6() + (int)Math.cos(Math.PI/2*i)*4000;
+		int lat = current.getLatitudeE6() + (int)Math.sin(Math.PI/2*i + 0.1)*1000 + 1000;
+		int log = current.getLongitudeE6() + (int)Math.cos(Math.PI/2*i + 0.1)*4000 + 2000;
 		m.setGeoPoint(new GeoPoint(lat, log));
 	}
 	
-	private void stepTowards(GeoPoint current, Monster m, double speed) {
-		int lat = current.getLatitudeE6() + (current.getLatitudeE6() - m.getGeoPoint().getLatitudeE6())/10;
-		int log = current.getLongitudeE6() + (current.getLongitudeE6() - m.getGeoPoint().getLongitudeE6())/10;
+	private void stepTowards(Location current, Monster m, double speed) {
+		
+		
+		int lat = (int) (current.getLatitudeE6() + Math.signum(current.getLatitudeE6() - m.getGeoPoint().getLatitudeE6() + 1));
+		int log = (int) (current.getLongitudeE6() + Math.signum(current.getLongitudeE6() - m.getGeoPoint().getLongitudeE6() + 1));
 		m.setGeoPoint(new GeoPoint(lat, log));
 	}
 	
@@ -67,15 +69,15 @@ public class MonsterManager {
 		}
 	}
 	
-	public boolean moveMonsters(GeoPoint current, double speed) {
+	public boolean moveMonsters(Location current, double speed) {
 		int i = 0;
 		for(Monster m : monsters) {
-			if(m.distanceTo(current) >= 150.) {
+			if(m.distanceTo(current) >= 300.) {
 				mEatingGhost.start();
 				groupAround(current, m, i);
 			} else {
 				stepTowards(current, m, speed);
-				if(m.distanceTo(current) <= 10) {
+				if(m.distanceTo(current) <= 1) {
 					mPlayerDies.start();
 					return false;
 				}
