@@ -16,6 +16,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -58,13 +59,6 @@ public class GameActivity extends MapActivity implements LocationService.UpdateH
 		mMManager = new MonsterManager(this);
         mapOverlays.addAll(mMManager.getMonsters());
         
-        timer.scheduleAtFixedRate(new TimerTask() {
-			@Override
-			public void run() {
-				mMManager.moveMonsters(mPacmanOverlay.getMyLocation());
-				mMap.postInvalidate();
-			}
-		}, 1000, 1000);
 	}
 	
 	@Override
@@ -77,12 +71,39 @@ public class GameActivity extends MapActivity implements LocationService.UpdateH
 		return true;
 	}
 	
+	TimerTask updater = new TimerTask() {
+    	boolean first = true;
+		@Override
+		public void run() {
+			GeoPoint p = mPacmanOverlay.getMyLocation();
+			
+			if (first && p != null) {
+				mMManager.init(p);
+				first = false;
+			} else if (p != null){
+				if (mMManager.moveMonsters(p, mLocationService.getAverageSpeed()))
+					mMap.postInvalidate();
+				else {
+					GameActivity.this.runOnUiThread(new Runnable() {
+						public void run() {
+							Toast.makeText(GameActivity.this, "Game over", Toast.LENGTH_LONG).show();
+						}
+					});
+					updater.cancel();
+				}
+			}
+		}
+	};
+	
 	@Override
 	protected void onResume() {
+		super.onResume();
+		
 		mLocationService.start();
         mPacmanOverlay.enableCompass();
         mPacmanOverlay.enableMyLocation();
-		super.onResume();
+        
+        timer.scheduleAtFixedRate(updater, 1000, 500);	
 	}
 	
 	@Override
@@ -91,6 +112,8 @@ public class GameActivity extends MapActivity implements LocationService.UpdateH
 		mLocationService.stop();
 		mPacmanOverlay.disableCompass();
 		mPacmanOverlay.disableMyLocation();
+		
+		updater.cancel();
 	}
 
 	public void onChange() {

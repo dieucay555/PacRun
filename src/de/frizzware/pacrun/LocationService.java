@@ -148,7 +148,7 @@ public class LocationService implements LocationListener, SensorEventListener {
 				return last1.distanceTo(last2)/MIN_TIME_BW_UPDATES;
 			}
 		}
-		return -1;
+		return 8;
 	}
 	
 	public double getAzimuth() {
