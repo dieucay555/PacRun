@@ -21,7 +21,8 @@ public class LocationService implements LocationListener, SensorEventListener {
 	private Context mContext;
 	private LocationManager mLocationMgr;
 	private  ArrayList<Location> mLocations = new ArrayList<Location>();
-	private LocationHandler mHandler;
+	private UpdateHandler mHandler;
+	Location mCurrentLocation;
 	
 	/**
 	 * Overall distance
@@ -31,27 +32,31 @@ public class LocationService implements LocationListener, SensorEventListener {
 	private boolean running = false;
     // flag for GPS status
     boolean isGPSEnabled = false;
+    // flag for network status
+    boolean isNetworkEnabled = false;
 	
 	 // The minimum distance to change Updates in meters
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 5; // 10 meters
     // The minimum time between updates in milliseconds
-    private static final long MIN_TIME_BW_UPDATES = 1000 * 5; // 5 seconds
+    private static final long MIN_TIME_BW_UPDATES = 1000 * 60; // 5 seconds
 	
-	public LocationService(Context ctx, LocationHandler handler) {
+	public LocationService(Context ctx, UpdateHandler handler) {
 		mContext = ctx;
 		mHandler = handler;
 		mLocationMgr = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-		
 	}
 	
 	public void onLocationChanged(Location location) {
+		if (isBetterLocation(location, mCurrentLocation))
+				mCurrentLocation = location;
+
 		mLocations.add(location);
 		if (mLocations.size() > 2) {
 			Location last = mLocations.get(mLocations.size() - 2);
 			distance += last.distanceTo(location);
 		}
 		if (mHandler != null)
-			mHandler.onLocationChanged(location);
+			mHandler.onChange();
 	}
 	public void onProviderDisabled(String provider) {}
 	public void onProviderEnabled(String provider) {}
@@ -93,6 +98,8 @@ public class LocationService implements LocationListener, SensorEventListener {
 	            azimuth = Math.toDegrees(orientVals[0]);
 	            pitch = Math.toDegrees(orientVals[1]);
 	            roll = Math.toDegrees(orientVals[2]);
+	            
+	            mHandler.onChange();
 	        }
 	    }
 	}
@@ -104,22 +111,25 @@ public class LocationService implements LocationListener, SensorEventListener {
 		if (isGPSEnabled) {
 			running = true;
 			startDate = new Date();
-			mLocationMgr.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER,
-                MIN_TIME_BW_UPDATES,
-                MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-			this.onLocationChanged(mLocationMgr.getLastKnownLocation(LocationManager.GPS_PROVIDER));
-			
-			SensorManager sm = (SensorManager)mContext.getSystemService(Context.SENSOR_SERVICE);
-			// Register this class as a listener for the accelerometer sensor
-			sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-			                    SensorManager.SENSOR_DELAY_GAME);
-			// ...and the orientation sensor
-			sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
-			                    SensorManager.SENSOR_DELAY_GAME);
+			mLocationMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
 		} else {
 			showSettingsAlert();
 		}
+			
+		isNetworkEnabled = mLocationMgr.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+//		if (isNetworkEnabled) {
+//			mLocationMgr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+//		}
+		
+		this.onLocationChanged(mLocationMgr.getLastKnownLocation(LocationManager.GPS_PROVIDER));
+		
+		SensorManager sm = (SensorManager)mContext.getSystemService(Context.SENSOR_SERVICE);
+		// Register this class as a listener for the accelerometer sensor
+		sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+		                    SensorManager.SENSOR_DELAY_GAME);
+		// ...and the orientation sensor
+		sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
+		                    SensorManager.SENSOR_DELAY_GAME);
 	}
 	
 	public void stop() {
@@ -150,9 +160,7 @@ public class LocationService implements LocationListener, SensorEventListener {
 	}
 	
 	public Location getCurrentLocation() {
-		if (!mLocations.isEmpty())
-			return mLocations.get(mLocations.size()-1);
-		return null;
+		return mCurrentLocation;
 	}
 	
 	/**
@@ -262,7 +270,7 @@ public class LocationService implements LocationListener, SensorEventListener {
         alertDialog.show();
     }
     
-    interface LocationHandler {
-    	public void onLocationChanged(Location location);
+    interface UpdateHandler {
+    	public void onChange();
     }
 }

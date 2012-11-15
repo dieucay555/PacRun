@@ -2,6 +2,8 @@ package de.frizzware.pacrun;
 
 import java.util.ArrayList;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -19,11 +21,11 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.Projection;
 
-public class GameActivity extends MapActivity implements LocationService.LocationHandler{
+public class GameActivity extends MapActivity implements LocationService.UpdateHandler{
 	LocationService mLocationService;
 	MapView mMap;
 	WayOverlay mWayOverlay = new WayOverlay();
-	FigureOverlay mPacmanOverlay;
+	LocationOverlay mPacmanOverlay;
 
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -34,15 +36,17 @@ public class GameActivity extends MapActivity implements LocationService.Locatio
         mMap = (MapView) findViewById(R.id.mapview);
         mMap.setBuiltInZoomControls(false);
         mMap.setStreetView(true); // Street View
+        mMap.getController().setZoom(19);
         
-        mPacmanOverlay = new FigureOverlay(getResources().getDrawable(R.drawable.pacman));
+        Bitmap pacman = BitmapFactory.decodeResource( getResources(), R.drawable.pacman);
+        mPacmanOverlay = new LocationOverlay(this, mMap, pacman);
         mMap.getOverlays().add(mPacmanOverlay);
         mMap.getOverlays().add(mWayOverlay);
         
         mLocationService = new LocationService(this, this);
         mLocationService.start();
 	}
-
+	
 	@Override
 	protected boolean isRouteDisplayed() {
 		return false;
@@ -50,37 +54,26 @@ public class GameActivity extends MapActivity implements LocationService.Locatio
 	
 	@Override
 	protected void onResume() {
+        mPacmanOverlay.enableCompass();
+        mPacmanOverlay.enableMyLocation();
 		super.onResume();
 	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		mPacmanOverlay.disableCompass();
+		mPacmanOverlay.disableMyLocation();
+	}
 
-	public void onLocationChanged(Location l) {
+	public void onChange() {
+		Location l = mLocationService.getCurrentLocation();
 		if (l != null) {
 	        GeoPoint point = new GeoPoint((int)(l.getLatitude()*1E6), (int)(l.getLongitude()*1E6));
 	        MapController controller = mMap.getController();
 	        controller.animateTo(point);
-	        controller.setZoom(19);
-	        mMap.postInvalidate();
-		}
-	}
-	
-	class FigureOverlay extends Overlay {
-		Drawable mDrawable;
-		public FigureOverlay(Drawable drawable) {
-			mDrawable = drawable;
-		}
-		
-		public void draw(Canvas canvas, MapView mapv, boolean shadow){
-	        super.draw(canvas, mapv, shadow);
-	        
-	        Location l = mLocationService.getCurrentLocation();
-	        Point p = new Point();
-	        GeoPoint gPoint = new GeoPoint((int)(l.getLatitude()*1E6), (int)(l.getLongitude()*1E6));
-	        mapv.getProjection().toPixels(gPoint, p);
-	        
-	        float azimuth = (float)mLocationService.getAzimuth();
-	        canvas.rotate(azimuth);
-	        mDrawable.setBounds(new Rect(p.x - 20, p.y-20, p.x+20, p.y+20));
-	        mDrawable.draw(canvas);
+	        //mMap.postInvalidate();
+	        mPacmanOverlay.setOrientation((float)mLocationService.getAzimuth());
 		}
 	}
 	
@@ -105,6 +98,8 @@ public class GameActivity extends MapActivity implements LocationService.Locatio
 	        Path path = new Path();
 	        Projection projection = mapv.getProjection();
 	        ArrayList<Location> locs = mLocationService.getLocations();
+	        if (locs.size() < 2)
+	        	return;
 	        	        
 	        Location l = locs.get(0);
 	        Point p = new Point();
