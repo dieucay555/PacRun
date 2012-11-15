@@ -48,14 +48,14 @@ public class MonsterManager {
 	}
 	
 	private void groupAround(GeoPoint current, Monster m, int i) {
-		int lat = current.getLatitudeE6() + (int)Math.sin(Math.PI/2*i)*2000;
-		int log = current.getLongitudeE6() + (int)Math.cos(Math.PI/2*i)*2000;
+		int lat = current.getLatitudeE6() + (int)Math.sin(Math.PI/2*i)*1000;
+		int log = current.getLongitudeE6() + (int)Math.cos(Math.PI/2*i)*4000;
 		m.setGeoPoint(new GeoPoint(lat, log));
 	}
 	
 	private void stepTowards(GeoPoint current, Monster m, double speed) {
-		int lat = (int) (current.getLatitudeE6() - (current.getLatitudeE6() - m.getGeoPoint().getLatitudeE6())/1000);
-		int log = (int) (current.getLongitudeE6() - (current.getLongitudeE6() - m.getGeoPoint().getLongitudeE6())/1000);
+		int lat = current.getLatitudeE6() + (current.getLatitudeE6() - m.getGeoPoint().getLatitudeE6())/10;
+		int log = current.getLongitudeE6() + (current.getLongitudeE6() - m.getGeoPoint().getLongitudeE6())/10;
 		m.setGeoPoint(new GeoPoint(lat, log));
 	}
 	
