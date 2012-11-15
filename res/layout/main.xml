@@ -14,15 +14,6 @@
         android:paddingTop="20dp"
         android:src="@drawable/titles" />
 
-    <Button
-        android:id="@+id/start_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:text="@string/button_start"
-        android:visibility="invisible" />
-
     <ImageView
         android:id="@+id/ivTitlePac"
         android:layout_width="wrap_content"
@@ -30,6 +21,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_marginBottom="40dp"
+        android:clickable="true"
         android:scaleType="centerInside"
         android:src="@drawable/pac_man_logo" />
 

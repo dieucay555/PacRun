@@ -6,6 +6,7 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -17,6 +18,7 @@ public class MainActivity extends Activity {
 	
 	//Animationen
 	private Animation leftRightIn;
+	private ImageView pacMan;
 	
 	//MediaPlayer
 	MediaPlayer welcomeSound;
@@ -28,12 +30,6 @@ public class MainActivity extends Activity {
         
         initGUI();
         
-        Button start = (Button)findViewById(R.id.start_button);
-        start.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				startActivity(new Intent(MainActivity.this, GameActivity.class));
-			}
-		});
         welcomeSound.start();
     }
     
@@ -47,11 +43,20 @@ public class MainActivity extends Activity {
     	
     	ivTitlePac = (ImageView) findViewById(R.id.ivTitlePac);
     	ivTitlePac.startAnimation(leftRightIn);
+    	
+    	pacMan = (ImageView) findViewById(R.id.ivTitlePac);
+    	pacMan.setOnClickListener(new OnClickListener() {
+			
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				startActivity(new Intent(MainActivity.this, GameActivity.class));
+			}
+		});
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        getMenuInflater().inflate(R.menu.main, menu);
+//        return true;
+//    }
 }
