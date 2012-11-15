@@ -56,6 +56,15 @@ public class MonsterManager {
 		m.setGeoPoint(new GeoPoint(lat, log));
 	}
 	
+	private void stepTowards(Location current, Monster m,int i) {
+		int latitude = (int)(current.getLatitude()*1E6);
+		int longitude = (int) (current.getLongitude()*1E6);
+
+		int lat = latitude - (int)Math.sin(Math.PI/2*i)*100;
+		int log = longitude - (int)Math.cos(Math.PI/2*i)*100;
+		m.setGeoPoint(new GeoPoint(lat, log));
+	}
+	
 	public void moveMonsters(Location current) {
 		int i = 0;
 		for(Monster m : monsters) {
@@ -64,7 +73,7 @@ public class MonsterManager {
 				mPlayerDies.seekTo(0);
 				//mPlayerDies.start();
 			} else {
-				
+				stepTowards(current, m, i);
 			}
 			i++;
 		}
