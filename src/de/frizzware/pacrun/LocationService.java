@@ -22,7 +22,7 @@ public class LocationService implements LocationListener, SensorEventListener {
 	private LocationManager mLocationMgr;
 	private  ArrayList<Location> mLocations = new ArrayList<Location>();
 	private UpdateHandler mHandler;
-	Location mCurrentLocation;
+	private Location mCurrentLocation;
 	
 	/**
 	 * Overall distance

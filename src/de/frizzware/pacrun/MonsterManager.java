@@ -47,25 +47,19 @@ public class MonsterManager {
 		return monsters;
 	}
 	
-	private void groupAround(Location current, Monster m, int i) {
-		int latitude = (int)(current.getLatitude()*1E6);
-		int longitude = (int) (current.getLongitude()*1E6);
-
-		int lat = latitude + (int)Math.sin(Math.PI/2*i)*1000;
-		int log = longitude + (int)Math.cos(Math.PI/2*i)*1000;
+	private void groupAround(GeoPoint current, Monster m, int i) {
+		int lat = current.getLatitudeE6() + (int)Math.sin(Math.PI/2*i)*1500;
+		int log = current.getLongitudeE6() + (int)Math.cos(Math.PI/2*i)*1500;
 		m.setGeoPoint(new GeoPoint(lat, log));
 	}
 	
-	private void stepTowards(Location current, Monster m,int i) {
-		int latitude = (int)(current.getLatitude()*1E6);
-		int longitude = (int) (current.getLongitude()*1E6);
-
-		int lat = latitude - (int)Math.sin(Math.PI/2*i)*100;
-		int log = longitude - (int)Math.cos(Math.PI/2*i)*100;
+	private void stepTowards(GeoPoint current, Monster m, int i) {
+		int lat = current.getLatitudeE6() - (int)Math.sin(Math.PI/2*i)*200;
+		int log = current.getLongitudeE6() - (int)Math.cos(Math.PI/2*i)*200;
 		m.setGeoPoint(new GeoPoint(lat, log));
 	}
 	
-	public void moveMonsters(Location current) {
+	public void moveMonsters(GeoPoint current) {
 		int i = 0;
 		for(Monster m : monsters) {
 			if(m.distanceTo(current) > 50.) {
@@ -74,6 +68,9 @@ public class MonsterManager {
 				//mPlayerDies.start();
 			} else {
 				stepTowards(current, m, i);
+				if(m.distanceTo(current) < 10) {
+					mPlayerDies.seekTo(0);
+				}
 			}
 			i++;
 		}
@@ -106,10 +103,10 @@ public class MonsterManager {
 			return mGeoPoint;
 		}
 		
-		public float distanceTo(Location l) {
+		public float distanceTo(GeoPoint point) {
 			float results[] = new float[3];
 			Location.distanceBetween(mGeoPoint.getLatitudeE6()/1E6, mGeoPoint.getLongitudeE6()/1E6,
-					l.getLatitude(), l.getLongitude(), results);
+					point.getLatitudeE6()/1E6, point.getLongitudeE6()/1E6, results);
 			return results[0];
 		}
 	}

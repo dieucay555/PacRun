@@ -2,6 +2,8 @@ package de.frizzware.pacrun;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -30,6 +32,7 @@ public class GameActivity extends MapActivity implements LocationService.UpdateH
 	WayOverlay mWayOverlay = new WayOverlay();
 	UserLocationOverlay mPacmanOverlay;
 	MonsterManager mMManager;
+	Timer timer = new Timer();
 
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,6 +57,14 @@ public class GameActivity extends MapActivity implements LocationService.UpdateH
 		
 		mMManager = new MonsterManager(this);
         mapOverlays.addAll(mMManager.getMonsters());
+        
+        timer.scheduleAtFixedRate(new TimerTask() {
+			@Override
+			public void run() {
+				mMManager.moveMonsters(mPacmanOverlay.getMyLocation());
+				mMap.postInvalidate();
+			}
+		}, 1000, 1000);
 	}
 	
 	@Override
@@ -91,9 +102,8 @@ public class GameActivity extends MapActivity implements LocationService.UpdateH
 	        MapController controller = mMap.getController();
 	        controller.animateTo(point);
 	        
-	        mMManager.moveMonsters(l);
-	        mPacmanOverlay.setOrientation((float)mLocationService.getAzimuth());
-	        mMap.postInvalidate();
+	        //mPacmanOverlay.setOrientation((float)mLocationService.getAzimuth());
+	        //mMap.postInvalidate();
 		}
 	}
 	
