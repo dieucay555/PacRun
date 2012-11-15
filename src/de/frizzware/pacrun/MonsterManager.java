@@ -48,8 +48,8 @@ public class MonsterManager {
 	}
 	
 	private void groupAround(GeoPoint current, Monster m, int i) {
-		int lat = current.getLatitudeE6() + (int)Math.sin(Math.PI/2*i)*1000;
-		int log = current.getLongitudeE6() + (int)Math.cos(Math.PI/2*i)*1000;
+		int lat = current.getLatitudeE6() + (int)Math.sin(Math.PI/2*i)*2000;
+		int log = current.getLongitudeE6() + (int)Math.cos(Math.PI/2*i)*2000;
 		m.setGeoPoint(new GeoPoint(lat, log));
 	}
 	
