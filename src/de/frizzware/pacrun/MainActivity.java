@@ -24,6 +24,7 @@ public class MainActivity extends Activity {
 	private Animation leftRightOut;
 	
 	private ImageView pacMan;
+	private ImageView pressPlay;
 	private ImageView dot1;
 	private ImageView dot2;
 	
@@ -55,9 +56,11 @@ public class MainActivity extends Activity {
     	
     	dot1 = (ImageView) findViewById(R.id.dot1);
     	dot2 = (ImageView) findViewById(R.id.dot2);
+    	pressPlay = (ImageView) findViewById(R.id.ivPressPlay);
     	
     	dot1.startAnimation(fadeIN);
     	dot2.startAnimation(fadeIN);
+    	pressPlay.startAnimation(fadeIN);
     	
     	fadeOUT.setAnimationListener(new AnimationListener() {
 			
