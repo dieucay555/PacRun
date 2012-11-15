@@ -5,22 +5,32 @@
     android:background="@drawable/background" >
 
     <ImageView
-        android:id="@+id/ivTitlePac"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:id="@+id/imageView1"
+        android:layout_width="wrap_content"
+        android:layout_height="250dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="27dp"
-        android:scaleType="centerInside"
-        android:src="@drawable/main_title_pac" />
+        android:paddingBottom="20dp"
+        android:paddingTop="20dp"
+        android:src="@drawable/titles" />
 
     <Button
         android:id="@+id/start_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="20dp"
-        android:text="@string/button_start" />
+        android:layout_alignParentRight="true"
+        android:text="@string/button_start"
+        android:visibility="invisible" />
+
+    <ImageView
+        android:id="@+id/ivTitlePac"
+        android:layout_width="wrap_content"
+        android:layout_height="180dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="40dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/pac_man_logo" />
 
 </RelativeLayout>
