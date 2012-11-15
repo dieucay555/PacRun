@@ -22,6 +22,8 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.Projection;
 
+import de.frizzware.pacrun.MonsterManager.Monster;
+
 public class GameActivity extends MapActivity implements LocationService.UpdateHandler{
 	LocationService mLocationService;
 	MapView mMap;
@@ -47,9 +49,11 @@ public class GameActivity extends MapActivity implements LocationService.UpdateH
         mPacmanOverlay = new UserLocationOverlay(this, mMap, pacman);
         mapOverlays.add(mPacmanOverlay);
         
-        //mMap.getOverlays().add(mWayOverlay);
-        mMManager = new MonsterManager(getResources().getDrawable(R.drawable.clyde), mLocationService);
-        mapOverlays.add(mMManager);
+        Drawable d = getResources().getDrawable(R.drawable.clyde);
+		Monster m = new Monster(d, new GeoPoint(5077825, 6060222));
+		
+		mMManager = new MonsterManager(this);
+        mapOverlays.addAll(mMManager.getMonsters());
 	}
 	
 	@Override
@@ -81,12 +85,13 @@ public class GameActivity extends MapActivity implements LocationService.UpdateH
 	public void onChange() {
 		Location l = mLocationService.getCurrentLocation();
 		if (l != null) {
-			mMManager.generateMonsters();
+			
 			
 	        GeoPoint point = new GeoPoint((int)(l.getLatitude()*1E6), (int)(l.getLongitude()*1E6));
 	        MapController controller = mMap.getController();
 	        controller.animateTo(point);
 	        
+	        mMManager.moveMonsters(l);
 	        mPacmanOverlay.setOrientation((float)mLocationService.getAzimuth());
 	        mMap.postInvalidate();
 		}
