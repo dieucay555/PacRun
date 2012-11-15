@@ -31,6 +31,14 @@ public class MonsterManager {
 		Drawable d = mContext.getResources().getDrawable(R.drawable.clyde);
 		Monster m = new Monster(d, new GeoPoint((int)(50.77825*1E6), (int)(6.060222*1E6)));
 		monsters.add(m);
+		
+		d = mContext.getResources().getDrawable(R.drawable.inky);
+		m = new Monster(d, new GeoPoint((int)(50.77825*1E6), (int)(6.060222*1E6)));
+		monsters.add(m);
+		
+		d = mContext.getResources().getDrawable(R.drawable.pinky);
+		m = new Monster(d, new GeoPoint((int)(50.77825*1E6), (int)(6.060222*1E6)));
+		monsters.add(m);
 	}
 	
 	public List<Monster> getMonsters() {
@@ -49,9 +57,9 @@ public class MonsterManager {
 	public void moveMonsters(Location current) {
 		int i = 0;
 		for(Monster m : monsters) {
-			if(m.distanceTo(current) > 50.)
+			if(m.distanceTo(current) > 50.) {
 				groupAround(current, m, i);
-			else {
+			} else {
 				
 			}
 			i++;
