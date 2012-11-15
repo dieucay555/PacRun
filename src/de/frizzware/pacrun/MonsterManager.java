@@ -18,7 +18,9 @@ public class MonsterManager extends ItemizedOverlay<OverlayItem> {
 	public MonsterManager(Drawable drawable, LocationService locationSevice) {
 		super(drawable);		
 		mLocationService = locationSevice;
-		
+	}
+	
+	public void generateMonsters() {
 		for (int i = 1; i <= 3; i++) {
 			OverlayItem overlayitem = new OverlayItem(randomPoint(), "Monster " + i, "A Monster");
 			addOverlay(overlayitem);
@@ -28,9 +30,12 @@ public class MonsterManager extends ItemizedOverlay<OverlayItem> {
 	
 	public GeoPoint randomPoint() {
 		Location c = mLocationService.getCurrentLocation();
-		int lat = (int) ((int)(c.getLatitude() + rand.nextDouble())*1E6);
-		int log = (int) ((int)(c.getLongitude() + rand.nextDouble())*1E6);
-		return new GeoPoint(lat, log);
+		if (c != null) {
+			int lat = (int) ((int)(c.getLatitude() + 0.001*(0.5 - rand.nextDouble()))*1E6);
+			int log = (int) ((int)(c.getLongitude() + 0.001*(0.5 - rand.nextDouble()))*1E6);
+			return new GeoPoint(lat, log);
+		} else 
+			return new GeoPoint(0, 0);
 	}
 
 	@Override
@@ -45,8 +50,24 @@ public class MonsterManager extends ItemizedOverlay<OverlayItem> {
 	
     public void addOverlay(OverlayItem overlay) {
         mapOverlays.add(overlay);
-
         //this.populate();
     }
 
+    private static class MonsterItem extends OverlayItem {
+    	GeoPoint internPoint;
+
+		public MonsterItem(GeoPoint point, java.lang.String title, java.lang.String snippet) {
+			super(point, title, snippet);
+			internPoint = point;
+		}
+    	
+		@Override
+		public GeoPoint getPoint() {
+			return internPoint;//super.getPoint();
+		}
+		
+		public void setInternPoint(GeoPoint p) {
+			internPoint = p;
+		}
+    }
 }

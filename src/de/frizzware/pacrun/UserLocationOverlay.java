@@ -10,11 +10,11 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
 
-public class LocationOverlay extends MyLocationOverlay {
+public class UserLocationOverlay extends MyLocationOverlay {
     private float   mOrientation;
     private Bitmap  mBitmap;
 
-    public LocationOverlay(Context context, MapView mapView, Bitmap bitmap) {
+    public UserLocationOverlay(Context context, MapView mapView, Bitmap bitmap) {
         super(context, mapView);
         mBitmap = bitmap;
     }

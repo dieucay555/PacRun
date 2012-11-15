@@ -1,6 +1,7 @@
 package de.frizzware.pacrun;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -25,30 +26,39 @@ public class GameActivity extends MapActivity implements LocationService.UpdateH
 	LocationService mLocationService;
 	MapView mMap;
 	WayOverlay mWayOverlay = new WayOverlay();
-	LocationOverlay mPacmanOverlay;
+	UserLocationOverlay mPacmanOverlay;
+	MonsterManager mMManager;
 
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game);
+        mLocationService = new LocationService(this, this);
         
         // Displaying Zooming controls
         mMap = (MapView) findViewById(R.id.mapview);
         mMap.setBuiltInZoomControls(false);
         mMap.setStreetView(true); // Street View
         mMap.getController().setZoom(19);
+      
+        List<Overlay> mapOverlays = mMap.getOverlays();
         
         Bitmap pacman = BitmapFactory.decodeResource( getResources(), R.drawable.pacman);
-        mPacmanOverlay = new LocationOverlay(this, mMap, pacman);
-        mMap.getOverlays().add(mPacmanOverlay);
-        mMap.getOverlays().add(mWayOverlay);
+        mPacmanOverlay = new UserLocationOverlay(this, mMap, pacman);
         
-        mLocationService = new LocationService(this, this);
+        mapOverlays.add(mPacmanOverlay);
+        //mMap.getOverlays().add(mWayOverlay);
+        mMManager = new MonsterManager(getResources().getDrawable(R.drawable.pacman), mLocationService);
 	}
 	
 	@Override
 	protected boolean isRouteDisplayed() {
 		return false;
+	}
+	
+	@Override
+	protected boolean isLocationDisplayed() {
+		return true;
 	}
 	
 	@Override
@@ -70,11 +80,14 @@ public class GameActivity extends MapActivity implements LocationService.UpdateH
 	public void onChange() {
 		Location l = mLocationService.getCurrentLocation();
 		if (l != null) {
+			//mMManager.generateMonsters();
+			
 	        GeoPoint point = new GeoPoint((int)(l.getLatitude()*1E6), (int)(l.getLongitude()*1E6));
 	        MapController controller = mMap.getController();
 	        controller.animateTo(point);
-	        //mMap.postInvalidate();
+	        
 	        mPacmanOverlay.setOrientation((float)mLocationService.getAzimuth());
+	        //mMap.postInvalidate();
 		}
 	}
 	

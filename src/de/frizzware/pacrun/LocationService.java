@@ -117,9 +117,9 @@ public class LocationService implements LocationListener, SensorEventListener {
 		}
 			
 		isNetworkEnabled = mLocationMgr.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-//		if (isNetworkEnabled) {
-//			mLocationMgr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
-//		}
+		if (isNetworkEnabled) {
+			mLocationMgr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+		}
 		
 		this.onLocationChanged(mLocationMgr.getLastKnownLocation(LocationManager.GPS_PROVIDER));
 		
