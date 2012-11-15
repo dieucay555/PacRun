@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -56,6 +57,26 @@ public class MainActivity extends Activity {
     	dot1.startAnimation(fadeIN);
     	dot2.startAnimation(fadeIN);
     	
+    	fadeOUT.setAnimationListener(new AnimationListener() {
+			
+			public void onAnimationStart(Animation animation) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			public void onAnimationRepeat(Animation animation) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			public void onAnimationEnd(Animation animation) {
+				// TODO Auto-generated method stub
+				dot1.setVisibility(View.GONE);
+				dot2.setVisibility(View.GONE);
+				startActivity(new Intent(MainActivity.this, GameActivity.class));
+			}
+		});
+    	
     	ivTitlePac = (ImageView) findViewById(R.id.ivTitlePac);
     	ivTitlePac.startAnimation(leftRightIn);
     	
@@ -68,7 +89,6 @@ public class MainActivity extends Activity {
 				ivTitlePac.startAnimation(leftRightOut);
 				dot1.startAnimation(fadeOUT);
 				dot2.startAnimation(fadeOUT);
-				//startActivity(new Intent(MainActivity.this, GameActivity.class));
 			}
 		});
     }
