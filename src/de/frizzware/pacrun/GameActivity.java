@@ -35,13 +35,17 @@ public class GameActivity extends MapActivity implements LocationService.UpdateH
     	boolean first = true;
 		@Override
 		public void run() {
-			Location l = mLocationService.getCurrentLocation();
+			final Location l = mLocationService.getCurrentLocation();
 			
 			if (first && l != null) {
-				mMManager.init(l);
+				GameActivity.this.runOnUiThread(new Runnable() {
+					public void run() {
+						mMManager.init(l);
+					}
+				});
 				first = false;
 			} else if (l != null){
-				if (mMManager.moveMonsters(l, mLocationService.getAverageSpeed()))
+				if (mMManager.doAction(l, mLocationService.getAverageSpeed()))
 					mMap.postInvalidate();
 				else {
 					GameActivity.this.runOnUiThread(new Runnable() {

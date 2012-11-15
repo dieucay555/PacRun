@@ -20,26 +20,29 @@ public class GameManager {
 	private MediaPlayer mEatingGhost;
 	private MediaPlayer mWakawaka;
 	private ArrayList<GameObj> monsters = new ArrayList<GameObj>();
-	private GameActivity mContext;
+	private GameActivity mGameActivity;
 	private int lifes = 3;
+	private int points = 0;
 	private ArrayList<GameObj> stuff = new ArrayList<GameManager.GameObj>();
 	
 	public GameManager(GameActivity ctx) {
-		mContext = ctx;
+		mGameActivity = ctx;
 		
-		mPlayerDies = MediaPlayer.create(mContext, R.raw.pacman_dies);
-		mEatingGhost = MediaPlayer.create(mContext, R.raw.eating_ghost);
-		mWakawaka = MediaPlayer.create(mContext, R.raw.wakawaka);
+		mGameActivity.setTitle("Punkte: 0");
+		
+		mPlayerDies = MediaPlayer.create(mGameActivity, R.raw.pacman_dies);
+		mEatingGhost = MediaPlayer.create(mGameActivity, R.raw.eating_ghost);
+		mWakawaka = MediaPlayer.create(mGameActivity, R.raw.wakawaka);
 	}
 	
 	public void init(Location current) {
-		mContext.mMap.getOverlays().addAll(getMonsters());
+		mGameActivity.mMap.getOverlays().addAll(getMonsters());
 		for (int i = 0; i < monsters.size(); i++) {
 			GameObj m = monsters.get(i);
 			groupAround(current, m, i);
 		}
-		//makeStuff(current);
-		//mContext.mMap.getOverlays().addAll(stuff);
+		makeStuff(current);
+		mGameActivity.mMap.getOverlays().addAll(stuff);
 	}
 	
 	public void destroy() {
@@ -50,14 +53,14 @@ public class GameManager {
 	
 	private void makeStuff(Location around) {
 		Random rand = new Random();// good enough
-		int left = (int) (around.getLatitude()*1E6 - 25000);
-		int top = (int) (around.getLongitude()*1E6 - 25000);
+		int left = (int) (around.getLatitude()*1E6 - 6000);
+		int top = (int) (around.getLongitude()*1E6 - 4000);
 		
-		Drawable coin = mContext.getResources().getDrawable(R.drawable.dot);
+		Drawable coin = mGameActivity.getResources().getDrawable(R.drawable.dot_gold);
 		
-		for (int i = 0; i < 50; i++) {
-			for (int x = 0; x < 50; x++) {
-				GeoPoint p = new GeoPoint(left + i*100, top + x*100);
+		for (int i = 0; i < 25; i++) {
+			for (int x = 0; x < 25; x++) {
+				GeoPoint p = new GeoPoint(left + i*500 + rand.nextInt(300), top + x*750 + rand.nextInt(300));
 				GameObj coinObj = new GameObj(coin, p, GameTypes.COIN);
 				stuff.add(coinObj);
 			}
@@ -66,15 +69,15 @@ public class GameManager {
 
 	public List<GameObj> getMonsters() {
 		if (monsters.isEmpty()) {
-			Drawable d = mContext.getResources().getDrawable(R.drawable.clyde);
+			Drawable d = mGameActivity.getResources().getDrawable(R.drawable.clyde);
 			GameObj m = new GameObj(d, new GeoPoint((int)(50.77825*1E6), (int)(6.060222*1E6)), GameTypes.MONSTER);
 			monsters.add(m);
 			
-			d = mContext.getResources().getDrawable(R.drawable.inky);
+			d = mGameActivity.getResources().getDrawable(R.drawable.inky);
 			m = new GameObj(d, new GeoPoint((int)(50.77825*1E6), (int)(6.060222*1E6)), GameTypes.MONSTER);
 			monsters.add(m);
 			
-			d = mContext.getResources().getDrawable(R.drawable.pinky);
+			d = mGameActivity.getResources().getDrawable(R.drawable.pinky);
 			m = new GameObj(d, new GeoPoint((int)(50.77825*1E6), (int)(6.060222*1E6)), GameTypes.MONSTER);
 			monsters.add(m);
 		}
@@ -95,35 +98,52 @@ public class GameManager {
 		m.setGeoPoint(new GeoPoint(lat, log));
 	}
 	
-	public boolean moveMonsters(Location current, double speed) {
-		int i = 0;
-		for(GameObj m : monsters) {
+	public boolean doAction(Location current, double speed) {
+		for(int i = 0; i < monsters.size(); i++) {
+			GameObj m = monsters.get(i);
 			if(m.distanceTo(current) >= 200.) {
 				mEatingGhost.start();
 				groupAround(current, m, i);
 			} else {
 				stepTowards(current, m, speed);
-				if(m.distanceTo(current) <= 10) {
+				if(m.distanceTo(current) <= 20) {
 					mPlayerDies.start();
 					return false;
 				}
 			}
 			i++;
 		}
-		mWakawaka.start();
+		
+		for(int i = 0; i < stuff.size(); i++) {
+			final GameObj s = stuff.get(i);
+			if (s.getType() == GameTypes.COIN && s.distanceTo(current) <= 20) {
+				mWakawaka.start();
+				points += 1000;
+				stuff.remove(i);
+				i--;
+				mGameActivity.runOnUiThread(new Runnable() {
+					public void run() {
+						mGameActivity.mMap.getOverlays().remove(s);
+						mGameActivity.setTitle("Punkte: "+ points);
+					}
+				});
+			}
+		}
+		
 		return true;
 	}
 	
 	interface GameTypes {
-		final static int MONSTER = 1;
+		final static int MONSTER = 25;
 		final static int LIFE = 2;
-		final static int COIN = 3;
+		final static int COIN = 10;
 	}
 	
 	public static class GameObj extends Overlay {
 		int mType;
 		Drawable mDrawable;
 		GeoPoint mGeoPoint;
+		
 		
 		public GameObj(Drawable drawable, GeoPoint geoPoint, int type) {
 			mDrawable = drawable;
@@ -137,7 +157,7 @@ public class GameManager {
 			
 			Projection pr = mapView.getProjection();
 			Point point = pr.toPixels(mGeoPoint, null);
-			mDrawable.setBounds(new Rect(point.x-20, point.y-35, point.x+20, point.y+35));
+			mDrawable.setBounds(new Rect(point.x- mType, point.y-mType, point.x+mType, point.y+mType));
 			mDrawable.draw(canvas);
 		}
 		
