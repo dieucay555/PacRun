@@ -44,7 +44,6 @@ public class GameActivity extends MapActivity implements LocationService.UpdateH
         mMap.getOverlays().add(mWayOverlay);
         
         mLocationService = new LocationService(this, this);
-        mLocationService.start();
 	}
 	
 	@Override
@@ -54,6 +53,7 @@ public class GameActivity extends MapActivity implements LocationService.UpdateH
 	
 	@Override
 	protected void onResume() {
+		mLocationService.start();
         mPacmanOverlay.enableCompass();
         mPacmanOverlay.enableMyLocation();
 		super.onResume();
@@ -62,6 +62,7 @@ public class GameActivity extends MapActivity implements LocationService.UpdateH
 	@Override
 	protected void onPause() {
 		super.onPause();
+		mLocationService.stop();
 		mPacmanOverlay.disableCompass();
 		mPacmanOverlay.disableMyLocation();
 	}
