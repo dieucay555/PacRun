@@ -13,11 +13,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -26,14 +23,13 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.Projection;
 
-import de.frizzware.pacrun.MonsterManager.Monster;
-
 public class GameActivity extends MapActivity implements LocationService.UpdateHandler{
 	LocationService mLocationService;
 	MapView mMap;
 	WayOverlay mWayOverlay = new WayOverlay();
 	UserLocationOverlay mPacmanOverlay;
-	MonsterManager mMManager;
+	GameManager mMManager;
+	
 	Timer timer = new Timer();
 	TimerTask updater = new TimerTask() {
     	boolean first = true;
@@ -76,13 +72,8 @@ public class GameActivity extends MapActivity implements LocationService.UpdateH
         Bitmap pacman = BitmapFactory.decodeResource( getResources(), R.drawable.pacman);
         mPacmanOverlay = new UserLocationOverlay(pacman);
         mapOverlays.add(mPacmanOverlay);
-        
-        Drawable d = getResources().getDrawable(R.drawable.clyde);
-		Monster m = new Monster(d, new GeoPoint(5077825, 6060222));
 		
-		mMManager = new MonsterManager(this);
-        mapOverlays.addAll(mMManager.getMonsters());
-        
+		mMManager = new GameManager(this);
 	}
 	
 	@Override
